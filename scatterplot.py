@@ -31,7 +31,11 @@ axis_enabled = False;
 
 grid_faces_enabled = (False,False,False,False,False,False)
 
+grid_interior_enabled = False
+
 grid_faces_grid = [[],[],[],[],[],[]]
+
+grid_interior_lines= []
 
 wireframe_box = None;
 
@@ -118,8 +122,41 @@ def make_box():
         wireframe_box.append(visual.curve(pos=[(1,1,1),(0,1,1)],color=visual.color.white))
         wireframe_box.append(visual.curve(pos=[(1,1,1),(1,0,1)],color=visual.color.white))
 
-def make_grid():
-    global min_x,max_x,min_y,max_y,min_z,max_z,grid_faces_grid
+def make_grid_interior():
+    global grid_interior_lines
+    gridlines = 20
+    zero_coord=(min_x / (min_x - max_x),min_y / (min_y - max_y),min_z / (min_z - max_z))
+    grid_length_x=(max_x-min_x)/gridlines
+    grid_length_y=(max_y-min_y)/gridlines
+    grid_length_z=(max_z-min_z)/gridlines
+    pre_zero_lengths_x=numpy.floor(zero_coord[0]*gridlines)
+    pre_zero_lengths_y=numpy.floor(zero_coord[1]*gridlines)
+    pre_zero_lengths_z=numpy.floor(zero_coord[2]*gridlines)
+
+    for gridline in grid_interior_lines:
+        gridline.visible=False
+    grid_interior_lines=[]
+
+    if grid_interior_enabled:
+        for i in range(gridlines):
+            for j in range(gridlines):
+                coord1=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
+                coord2=zero_coord[1]+(j-pre_zero_lengths_y)*1/gridlines
+                grid_interior_lines.append(visual.curve(pos=[(coord1,coord2,0),(coord1,coord2,1)]))
+        for i in range(gridlines):
+            for j in range(gridlines):
+                coord1=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
+                coord2=zero_coord[2]+(j-pre_zero_lengths_z)*1/gridlines
+                grid_interior_lines.append(visual.curve(pos=[(coord1,0,coord2),(coord1,1,coord2)]))
+        for i in range(gridlines):
+            for j in range(gridlines):
+                coord1=zero_coord[1]+(i-pre_zero_lengths_y)*1/gridlines
+                coord2=zero_coord[2]+(j-pre_zero_lengths_z)*1/gridlines
+                grid_interior_lines.append(visual.curve(pos=[(0,coord1,coord2),(1,coord1,coord2)]))
+
+
+def make_grid_faces():
+    global grid_faces_grid
     gridlines = 20
     zero_coord=(min_x / (min_x - max_x),min_y / (min_y - max_y),min_z / (min_z - max_z))
     grid_length_x=(max_x-min_x)/gridlines
@@ -134,7 +171,13 @@ def make_grid():
             gridline.visible=False
     grid_faces_grid=[[],[],[],[],[],[]]
 
-    if grid_faces_enabled[0]:
+    for i in range(5):
+        if grid_faces_enabled[i]:
+            make_grid_face(i,gridlines,zero_coord,grid_length_x,grid_length_y,grid_length_z,pre_zero_lengths_x,pre_zero_lengths_y,pre_zero_lengths_z)
+
+def make_grid_face(face_num,gridlines,zero_coord,grid_length_x,grid_length_y,grid_length_z,pre_zero_lengths_x,pre_zero_lengths_y,pre_zero_lengths_z):
+    global grid_faces_grid
+    if face_num==0:
         for i in range(gridlines):
             coord=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
             grid_faces_grid[0].append(visual.curve(pos=[(coord,0,0),(coord,1,0)]))
@@ -142,7 +185,7 @@ def make_grid():
             coord=zero_coord[1]+(i-pre_zero_lengths_y)*1/gridlines
             grid_faces_grid[0].append(visual.curve(pos=[(0,coord,0),(1,coord,0)]))
 
-    if grid_faces_enabled[1]:
+    if face_num==1:
         for i in range(gridlines):
             coord=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
             grid_faces_grid[1].append(visual.curve(pos=[(coord,0,1),(coord,1,1)]))
@@ -150,7 +193,7 @@ def make_grid():
             coord=zero_coord[1]+(i-pre_zero_lengths_y)*1/gridlines
             grid_faces_grid[1].append(visual.curve(pos=[(0,coord,1),(1,coord,1)]))
 
-    if grid_faces_enabled[2]:
+    if face_num==2:
         for i in range(gridlines):
             coord=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
             grid_faces_grid[2].append(visual.curve(pos=[(coord,0,0),(coord,0,1)]))
@@ -158,7 +201,7 @@ def make_grid():
             coord=zero_coord[2]+(i-pre_zero_lengths_z)*1/gridlines
             grid_faces_grid[2].append(visual.curve(pos=[(0,0,coord),(1,0,coord)]))
 
-    if grid_faces_enabled[3]:
+    if face_num==3:
         for i in range(gridlines):
             coord=zero_coord[0]+(i-pre_zero_lengths_x)*1/gridlines
             grid_faces_grid[3].append(visual.curve(pos=[(coord,1,0),(coord,1,1)]))
@@ -166,7 +209,7 @@ def make_grid():
             coord=zero_coord[2]+(i-pre_zero_lengths_z)*1/gridlines
             grid_faces_grid[3].append(visual.curve(pos=[(0,1,coord),(1,1,coord)]))
 
-    if grid_faces_enabled[4]:
+    if face_num==4:
         for i in range(gridlines):
             coord=zero_coord[1]+(i-pre_zero_lengths_y)*1/gridlines
             grid_faces_grid[4].append(visual.curve(pos=[(0,coord,0),(0,coord,1)]))
@@ -174,7 +217,7 @@ def make_grid():
             coord=zero_coord[2]+(i-pre_zero_lengths_z)*1/gridlines
             grid_faces_grid[4].append(visual.curve(pos=[(0,0,coord),(0,1,coord)]))
 
-    if grid_faces_enabled[5]:
+    if face_num==5:
         for i in range(gridlines):
             coord=zero_coord[1]+(i-pre_zero_lengths_y)*1/gridlines
             grid_faces_grid[5].append(visual.curve(pos=[(1,coord,0),(1,coord,1)]))
@@ -183,12 +226,12 @@ def make_grid():
             grid_faces_grid[5].append(visual.curve(pos=[(1,0,coord),(1,1,coord)]))
 
 
-
 def render():
     make_points()
     draw_axes()
     make_box()
-    make_grid()
+    make_grid_faces()
+    make_grid_interior()
 
 
 def set_view_to_default():
