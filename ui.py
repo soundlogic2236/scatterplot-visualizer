@@ -4,8 +4,6 @@ import wx
 import scatterplot
 import ui_functions
 
-debug = True
-
 L = 320
 Hgraph = 400
 # Create a window. Note that w.win is the wxPython "Frame" (the window).
@@ -89,6 +87,9 @@ w.win.Bind(wx.EVT_MENU, ui_functions.toggle_axes, item)
 item = options_menu.Append(-1, 'Grid', 'Make box cyan')
 w.win.Bind(wx.EVT_MENU, ui_functions.toggle_grid, item)
 
+item = options_menu.Append(-1, '3d Grid', 'Make box cyan')
+w.win.Bind(wx.EVT_MENU, ui_functions.toggle_grid3d, item)
+
 item = options_menu.Append(-1, 'Data Points', 'Make box cyan')
 
 item = options_menu.Append(-1, 'Export Formats', 'Make box cyan')
@@ -99,8 +100,6 @@ m.Append(edit_menu, '&Edit')
 m.Append(view_menu, '&View')
 m.Append(options_menu, '&Options')
 
-if debug:
-    scatterplot.import_datafile('points.csv')
 
 w.win.SetMenuBar(m)
 
